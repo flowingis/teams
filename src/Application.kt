@@ -1,15 +1,28 @@
 package it.flowing
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.features.*
-import io.ktor.routing.*
-import io.ktor.http.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.auth.*
-import io.ktor.gson.*
-import io.ktor.client.*
-import io.ktor.client.engine.jetty.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.jetty.Jetty
+import io.ktor.features.CORS
+import io.ktor.features.ContentNegotiation
+import io.ktor.gson.gson
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.response.respond
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+
+class Info(_uptime: OffsetDateTime) {
+    val uptime = _uptime.format(DateTimeFormatter.ISO_DATE_TIME)
+}
+
+val INFO_INSTANCE = Info(OffsetDateTime.now())
 
 fun main(args: Array<String>): Unit = io.ktor.server.jetty.EngineMain.main(args)
 
@@ -36,6 +49,7 @@ fun Application.module(testing: Boolean = false) {
 
     install(ContentNegotiation) {
         gson {
+            
         }
     }
 
@@ -44,7 +58,7 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         get("/") {
-            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
+            call.respond(INFO_INSTANCE)
         }
 
         authenticate("myBasicAuth") {
