@@ -15,7 +15,7 @@ import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
-import it.flowing.model.Teams
+import it.flowing.repository.Teams
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 

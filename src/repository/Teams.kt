@@ -1,6 +1,6 @@
-package it.flowing.model
+package it.flowing.repository
 
-import model.Sheets
+import it.flowing.model.Team
 
 class Teams {
     private val sheets = Sheets()
@@ -14,21 +14,27 @@ class Teams {
     private fun getPeople(team: String, values: List<List<Any>>): List<String> {
         return values
             .filter { l -> l.size == 3 }
-            .filter { l -> l[0].equals(team) }
-            .map { l -> l[2] as String }
+            .map { l -> Pair(l[0] as String, l[2] as String) }
+            .filter { p -> p.first.equals(team) }
+            .map { p -> p.second }
     }
 
     fun list(): List<Team> {
-        val values = sheets.getValues(spreadsheetId, range)
+        val values = sheets.getValues(
+            spreadsheetId,
+            range
+        )
         return values
             .filter { l -> l.size == 3 }
             .map { l -> l[0] as String }
             .filter { teamName -> teamName.isNotEmpty() }
             .filter { teamName -> !BLACKLIST.contains(teamName) }
             .distinct()
-            .map { team -> Team(name = team as String, people = getPeople(team, values)) }
-
-        //.map { l -> Team(name = l[0] as String, people = listOf(l[2] as String)) }
-        //return map
+            .map { team ->
+                Team(
+                    name = team,
+                    people = getPeople(team, values)
+                )
+            }
     }
 }
