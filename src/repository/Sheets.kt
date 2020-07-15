@@ -21,34 +21,12 @@ class Sheets {
 
     @Throws(IOException::class)
     private fun getCredentials(HTTP_TRANSPORT: NetHttpTransport): Credential {
-        // Load client secrets.
         val fileStream = Sheets::class.java.getResourceAsStream(CREDENTIALS_FILE_PATH)
             ?: throw FileNotFoundException("Resource not found: $CREDENTIALS_FILE_PATH")
         return GoogleCredential.fromStream(fileStream).createScoped(SCOPES)
     }
 
-    /**
-     * Prints the names and majors of students in a sample spreadsheet:
-     * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-     *
-     *
-     * public static void main(String... args) throws IOException, GeneralSecurityException {
-     * final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-     *
-     *
-     * Sheets service = new Sheets
-     * .Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-     * .build();
-     *
-     *
-     * ValueRange response = service.spreadsheets().values()
-     * .get(spreadsheetId, range)
-     * .execute();
-     * List<List></List><Object>> values = response.getValues();
-     * }
-    </Object> */
     @Throws(GeneralSecurityException::class, IOException::class)
-
     fun getValues(
         spreadsheetId: String,
         range: String
