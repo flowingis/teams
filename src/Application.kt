@@ -62,13 +62,6 @@ fun Application.module(testing: Boolean = false) {
         }
 
         authenticate("myBasicAuth") {
-            get("/protected/route/basic") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
-            }
-        }
-
-        authenticate("myBasicAuth") {
             get("/teams") {
                 val teams = Teams()
                 call.respond(teams.list())
