@@ -15,6 +15,7 @@ import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
+import it.flowing.model.Teams
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -35,9 +36,8 @@ fun Application.module(testing: Boolean = false) {
         method(HttpMethod.Delete)
         method(HttpMethod.Patch)
         header(HttpHeaders.Authorization)
-        header("MyCustomHeader")
         allowCredentials = true
-        anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
+        anyHost()
     }
 
     install(Authentication) {
@@ -49,7 +49,7 @@ fun Application.module(testing: Boolean = false) {
 
     install(ContentNegotiation) {
         gson {
-            
+
         }
     }
 
@@ -68,8 +68,11 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world"))
+        authenticate("myBasicAuth") {
+            get("/teams") {
+                val teams = Teams()
+                call.respond(teams.list())
+            }
         }
     }
 }
