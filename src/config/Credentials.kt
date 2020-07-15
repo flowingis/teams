@@ -1,10 +1,10 @@
 package it.flowing.config
 
 import com.google.gson.Gson
+import com.google.gson.stream.JsonReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.net.URISyntaxException
-import java.nio.file.Files
-import java.nio.file.Paths
 
 class Credentials(val password: String, val user: String) {
 
@@ -14,12 +14,13 @@ class Credentials(val password: String, val user: String) {
 
         @Throws(IOException::class, URISyntaxException::class)
         fun load(): Credentials {
-            val resource = Credentials::class.java.getResource(CREDENTIAL_PATH) ?: throw IllegalStateException()
-            val uri = resource.toURI() ?: throw IllegalStateException()
+            val inputStream =
+                Credentials::class.java.getResourceAsStream(CREDENTIAL_PATH) ?: throw IllegalStateException()
 
-            val JSON = String(Files.readAllBytes(Paths.get(uri)))
-            
-            return gson.fromJson(JSON, Credentials::class.java)
+            return gson.fromJson(
+                JsonReader(InputStreamReader(inputStream)),
+                Credentials::class.java
+            )
         }
     }
 }
