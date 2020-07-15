@@ -3,7 +3,10 @@ package it.flowing
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.auth.*
+import io.ktor.auth.Authentication
+import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.authenticate
+import io.ktor.auth.basic
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.jetty.Jetty
 import io.ktor.features.CORS
@@ -12,9 +15,9 @@ import io.ktor.gson.gson
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.response.respond
-import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
+import it.flowing.config.Credentials
 import it.flowing.repository.Teams
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -24,6 +27,8 @@ class Info(_uptime: OffsetDateTime) {
 }
 
 val INFO_INSTANCE = Info(OffsetDateTime.now())
+
+val credentials = Credentials.load();
 
 fun main(args: Array<String>): Unit = io.ktor.server.jetty.EngineMain.main(args)
 
@@ -43,7 +48,7 @@ fun Application.module(testing: Boolean = false) {
     install(Authentication) {
         basic("myBasicAuth") {
             realm = "Ktor Server"
-            validate { if (it.name == "test" && it.password == "password") UserIdPrincipal(it.name) else null }
+            validate { if (it.name == credentials.user && it.password == credentials.password) UserIdPrincipal(it.name) else null }
         }
     }
 
