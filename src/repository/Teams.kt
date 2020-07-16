@@ -6,9 +6,9 @@ class Teams {
     private val sheets = Sheets()
 
     companion object {
-        private const val spreadsheetId = "1E9YtPFw1VGnkOW3RllXe9Kvhcmgu1xmQU15Y8mSuy04"
-        private const val range = "Planning orizzonte!A4:C"
-        private val BLACKLIST = listOf(
+        private const val SPREADSHEET_ID = "1E9YtPFw1VGnkOW3RllXe9Kvhcmgu1xmQU15Y8mSuy04"
+        private const val RANGE = "Planning orizzonte!A4:C"
+        private val BLOCKLIST = listOf(
             "Altro",
             "Governance",
             "Aggiornamenti WP",
@@ -20,7 +20,7 @@ class Teams {
 
     private val getTeamNameFromRow = { l: List<Any> -> l[0] as String }
 
-    private val isValidTeamName = { teamName: String -> teamName.isNotEmpty() && !BLACKLIST.contains(teamName) }
+    private val isValidTeamName = { teamName: String -> teamName.isNotEmpty() && !BLOCKLIST.contains(teamName) }
 
     private fun getPeopleForTeam(team: String, rows: List<List<Any>>): List<String> {
         return rows
@@ -41,8 +41,8 @@ class Teams {
 
     fun list(): List<Team> {
         val rows = sheets.getValues(
-            spreadsheetId,
-            range
+            SPREADSHEET_ID,
+            RANGE
         )
         return rows
             .filter(isValidRow)
