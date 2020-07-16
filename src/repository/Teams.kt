@@ -18,14 +18,14 @@ class Teams {
 
     private val isValidRow = { l: List<Any> -> l.size == 3 }
 
-    private val getTeamNameFromRow = { l: List<Any> -> l[0] as String }
+    private val getTeamNameFromRow = { l: List<Any> -> (l[0] as String).trim() }
 
     private val isValidTeamName = { teamName: String -> teamName.isNotEmpty() && !BLOCKLIST.contains(teamName) }
 
     private fun getPeopleForTeam(team: String, rows: List<List<Any>>): List<String> {
         return rows
             .filter(isValidRow)
-            .map { l -> Pair(l[0] as String, l[2] as String) }
+            .map { l -> Pair((l[0] as String).trim(), l[2] as String) }
             .filter { p -> p.first.equals(team) }
             .map { p -> p.second }
     }
