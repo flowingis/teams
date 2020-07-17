@@ -18,6 +18,7 @@ import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import it.flowing.config.Credentials
+import it.flowing.repository.Surfers
 import it.flowing.repository.Teams
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -35,6 +36,9 @@ fun main(args: Array<String>): Unit = io.ktor.server.jetty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    val teams = Teams()
+    val surfers = Surfers()
+
     install(CORS) {
         method(HttpMethod.Options)
         method(HttpMethod.Put)
@@ -66,9 +70,12 @@ fun Application.module(testing: Boolean = false) {
             call.respond(INFO_INSTANCE)
         }
 
+        get("/people") {
+            call.respond(surfers.list())
+        }
+
         authenticate("myBasicAuth") {
             get("/teams") {
-                val teams = Teams()
                 call.respond(teams.list())
             }
         }

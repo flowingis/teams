@@ -1,9 +1,11 @@
 package it.flowing.repository
 
+import it.flowing.model.Surfer
 import it.flowing.model.Team
 
 class Teams {
     private val sheets = Sheets()
+    private val surfers = Surfers();
 
     companion object {
         private const val SPREADSHEET_ID = "1E9YtPFw1VGnkOW3RllXe9Kvhcmgu1xmQU15Y8mSuy04"
@@ -22,19 +24,22 @@ class Teams {
 
     private val isValidTeamName = { teamName: String -> teamName.isNotEmpty() && !BLOCKLIST.contains(teamName) }
 
-    private fun getPeopleForTeam(team: String, rows: List<List<Any>>): List<String> {
+    private fun getPeopleForTeam(team: String, rows: List<List<Any>>): List<Surfer> {
+        val surfersList = surfers.list();
+
         return rows
             .filter(isValidRow)
             .map { l -> Pair((l[0] as String).trim(), l[2] as String) }
             .filter { p -> p.first.equals(team) }
-            .map { p -> p.second }
+            .map { p -> surfersList.find { surfer -> surfer.nickname.toLowerCase().equals(p.second.toLowerCase()) } }
+            .filterNotNull()
     }
 
     private val teamNameToTeam = { rows: List<List<Any>> ->
         { teamName: String ->
             Team(
                 name = teamName,
-                people = getPeopleForTeam(teamName, rows)
+                surfers = getPeopleForTeam(teamName, rows)
             )
         }
     }
