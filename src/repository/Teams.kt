@@ -24,9 +24,7 @@ class Teams {
 
     private val isValidTeamName = { teamName: String -> teamName.isNotEmpty() && !BLOCKLIST.contains(teamName) }
 
-    private fun getPeopleForTeam(team: String, rows: List<List<Any>>): List<Surfer> {
-        val surfersList = surfers.list();
-
+    private fun getPeopleForTeam(team: String, rows: List<List<Any>>, surfersList: List<Surfer>): List<Surfer> {
         return rows
             .filter(isValidRow)
             .map { l -> Pair((l[0] as String).trim(), l[2] as String) }
@@ -35,12 +33,14 @@ class Teams {
             .filterNotNull()
     }
 
-    private val teamNameToTeam = { rows: List<List<Any>> ->
-        { teamName: String ->
-            Team(
-                name = teamName,
-                surfers = getPeopleForTeam(teamName, rows)
-            )
+    private val teamNameToTeam = { surfersList: List<Surfer> ->
+        { rows: List<List<Any>> ->
+            { teamName: String ->
+                Team(
+                    name = teamName,
+                    surfers = getPeopleForTeam(teamName, rows, surfersList)
+                )
+            }
         }
     }
 
@@ -49,11 +49,14 @@ class Teams {
             SPREADSHEET_ID,
             RANGE
         )
+
+        val surfersList = surfers.list();
+
         return rows
             .filter(isValidRow)
             .map(getTeamNameFromRow)
             .filter(isValidTeamName)
             .distinct()
-            .map(teamNameToTeam(rows))
+            .map(teamNameToTeam(surfersList)(rows))
     }
 }
