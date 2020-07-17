@@ -31,6 +31,7 @@ class Teams {
             .filter { p -> p.first.equals(team) }
             .map { p -> surfersList.find { surfer -> surfer.nickname.toLowerCase().equals(p.second.toLowerCase()) } }
             .filterNotNull()
+            .sortedBy { s -> s.name }
     }
 
     private val teamNameToTeam = { surfersList: List<Surfer> ->
