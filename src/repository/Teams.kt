@@ -43,7 +43,7 @@ class Teams {
             .asSequence()
             .map { l -> Pair((l[0] as String).trim(), l[2] as String) }
             .filter { it.first == team }
-            .mapNotNull { surfersList.find { surfer -> surfer.nickname.toLowerCase().equals(it.second.toLowerCase()) } }
+            .mapNotNull { surfersList.find { surfer -> surfer.nickname.toLowerCase() == it.second.toLowerCase() } }
             .sortedBy { it.name }
             .toList()
     }
