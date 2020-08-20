@@ -40,12 +40,23 @@ class Teams {
 
     private fun getPeopleForTeam(team: String, rows: List<List<Any>>, surfersList: List<Surfer>): List<Surfer> {
         return rows
-            .filter { isValidRow(it) }
+            .asSequence()
             .map { l -> Pair((l[0] as String).trim(), l[2] as String) }
             .filter { it.first == team }
-            .map { surfersList.find { surfer -> surfer.nickname.toLowerCase().equals(it.second.toLowerCase()) } }
-            .filterNotNull()
+            .mapNotNull { surfersList.find { surfer -> surfer.nickname.toLowerCase().equals(it.second.toLowerCase()) } }
             .sortedBy { it.name }
+            .toList()
+    }
+
+    private fun getWeeklyTeamEffort(team: String, rows: List<List<Any>>, week: Int): Int {
+        return rows
+            .asSequence()
+            .filter { it[0] == team }
+            .mapNotNull { it.getOrElse(week + WEEK_CELL_OFFSET) { "" } }
+            .map { it.toString() }
+            .filterNot { it.isNullOrBlank() }
+            .mapNotNull { it.toIntOrNull() }
+            .sum()
     }
 
     private fun isTeamActive(team: String, rows: List<List<Any>>): Boolean {
@@ -53,42 +64,33 @@ class Teams {
             get(Calendar.WEEK_OF_YEAR)
         }
 
-        return rows
-            .asSequence()
-            .filter { isValidRow(it) }
-            .filter { it[0] == team }
-            .mapNotNull { it.getOrElse(week + WEEK_CELL_OFFSET) { "" } }
-            .map { it.toString() }
-            .filterNot { it.isNullOrBlank() }
-            .mapNotNull { it.toIntOrNull() }
-            .any { it > 0 }
+        return (week - 2..week + 2)
+            .map { getWeeklyTeamEffort(team, rows, it) }
+            .sum() > 0
     }
 
-    private val teamNameToTeam = { surfersList: List<Surfer> ->
-        { rows: List<List<Any>> ->
-            { teamName: String ->
+    fun list(): List<Team> {
+        val rows = sheets
+            .getValues(
+                SPREADSHEET_ID,
+                RANGE
+            )
+            .filter { isValidRow(it) }
+
+        val surfersList = surfers.list();
+
+        return rows
+            .asSequence()
+            .map(getTeamNameFromRow)
+            .filter(isValidTeamName)
+            .distinct()
+            .map { teamName ->
                 Team(
                     name = teamName,
                     surfers = getPeopleForTeam(teamName, rows, surfersList),
                     active = isTeamActive(teamName, rows)
                 )
             }
-        }
-    }
-
-    fun list(): List<Team> {
-        val rows = sheets.getValues(
-            SPREADSHEET_ID,
-            RANGE
-        )
-
-        val surfersList = surfers.list();
-
-        return rows
-            .filter { l -> isValidRow(l) }
-            .map(getTeamNameFromRow)
-            .filter(isValidTeamName)
-            .distinct()
-            .map(teamNameToTeam(surfersList)(rows))
+            .toList()
     }
 }
